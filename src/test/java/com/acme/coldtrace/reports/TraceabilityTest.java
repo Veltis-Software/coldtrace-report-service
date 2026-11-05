@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+@org.springframework.test.context.ActiveProfiles("test")
 @SpringBootTest(
     properties = {
       "spring.datasource.url=jdbc:h2:mem:report;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1",
