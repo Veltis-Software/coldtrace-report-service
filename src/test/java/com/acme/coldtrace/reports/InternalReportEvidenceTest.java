@@ -18,7 +18,7 @@ class InternalReportEvidenceTest {
     jdbc = new JdbcTemplate(new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
     jdbc.execute("CREATE TABLE reports(id BIGINT,organization_id BIGINT,title VARCHAR(200),status VARCHAR(20),result VARCHAR(4000),period_start TIMESTAMP,period_end TIMESTAMP,completed_at TIMESTAMP)");
     jdbc.update("INSERT INTO reports VALUES(1,7,'Conservacion Callao','READY',?,'2026-11-01 00:00:00','2026-11-02 00:00:00','2026-11-02 00:01:00')", """
-        {"assets":[{"assetId":20}],"readings":[{"temperature":4,"humidity":60,"outOfRange":false},{"temperature":10,"outOfRange":true}],"incidents":[{"incident":{"status":"OPEN"}}]}
+        {"assets":[{"assetId":20}],"readings":[{"temperature":4,"humidity":60,"outOfRange":false},{"temperature":10,"outOfRange":true}],"incidents":[{"id":1,"state":"OPEN"},{"id":2,"state":"RESOLVED"},{"incident":{"status":"RESOLVED"}}]}
         """);
     controller = new InternalReportEvidenceController(new com.acme.coldtrace.reports.infrastructure.ReportEvidenceStore(jdbc, new ObjectMapper()), KEY);
   }

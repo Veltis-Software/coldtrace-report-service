@@ -35,7 +35,8 @@ public class ReportEvidenceStore implements ReportEvidenceReader {
     }
     boolean knownStatuses = incidents.isArray();
     for (var incident : incidents) {
-      var status = incident.path("incident").path("status");
+      var status = incident.path("state");
+      if (!status.isTextual()) status = incident.path("incident").path("status");
       if (!status.isTextual()) knownStatuses = false;
       else if (!List.of("RESOLVED", "CLOSED").contains(status.asText().toUpperCase(java.util.Locale.ROOT))) open++;
     }
