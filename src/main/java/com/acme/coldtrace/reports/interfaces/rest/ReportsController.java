@@ -34,6 +34,20 @@ public class ReportsController {
       @RequestBody ReportJobs.Request request,
       @RequestHeader(value = "Authorization", required = false) String bearer) {
     var session = identity.session(bearer);
+    return createFor(session, request, bearer);
+  }
+
+  @PostMapping("/api/v1/organizations/{organizationId}/reports")
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public ReportJobs.Job createScoped(@PathVariable long organizationId,
+      @RequestBody ReportJobs.Request request,
+      @RequestHeader(value = "Authorization", required = false) String bearer) {
+    var session = identity.session(bearer);
+    if (session.organizationId() != organizationId) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    return createFor(session, request, bearer);
+  }
+
+  private ReportJobs.Job createFor(com.acme.coldtrace.shared.IdentitySession session, ReportJobs.Request request, String bearer) {
     if (!session.permits("reports:view")) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     ReportJobs.validate(request);
     // Snapshot owned Alert data through its API. No cross-schema reads or stored bearer token.

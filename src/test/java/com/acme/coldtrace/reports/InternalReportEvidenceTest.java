@@ -16,8 +16,8 @@ class InternalReportEvidenceTest {
   private InternalReportEvidenceController controller;
   @BeforeEach void fixture() {
     jdbc = new JdbcTemplate(new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
-    jdbc.execute("CREATE TABLE reports(id BIGINT,organization_id BIGINT,title VARCHAR(200),status VARCHAR(20),result VARCHAR(4000),period_start TIMESTAMP,period_end TIMESTAMP,completed_at TIMESTAMP)");
-    jdbc.update("INSERT INTO reports VALUES(1,7,'Conservacion Callao','READY',?,'2026-11-01 00:00:00','2026-11-02 00:00:00','2026-11-02 00:01:00')", """
+    jdbc.execute("CREATE TABLE reports(id BIGINT,organization_id BIGINT,title VARCHAR(200),status VARCHAR(20),result VARCHAR(4000),period_start TIMESTAMP,period_end TIMESTAMP,completed_at TIMESTAMP,report_type VARCHAR(32))");
+    jdbc.update("INSERT INTO reports VALUES(1,7,'Conservacion Callao','READY',?,'2026-11-01 00:00:00','2026-11-02 00:00:00','2026-11-02 00:01:00','DAILY_LOG')", """
         {"assets":[{"assetId":20}],"readings":[{"temperature":4,"humidity":60,"outOfRange":false},{"temperature":10,"outOfRange":true}],"incidents":[{"id":1,"state":"OPEN"},{"id":2,"state":"RESOLVED"},{"incident":{"status":"RESOLVED"}}]}
         """);
     controller = new InternalReportEvidenceController(new com.acme.coldtrace.reports.infrastructure.ReportEvidenceStore(jdbc, new ObjectMapper()), KEY);
@@ -30,6 +30,7 @@ class InternalReportEvidenceTest {
     assertEquals(7.0, evidence.averageTemperature());
     assertEquals(60.0, evidence.averageHumidity());
     assertEquals(1, evidence.openIncidentCount());
+    assertEquals("DAILY_LOG", evidence.type());
   }
   @Test void tenantScopeAndWorkloadCredentialAreRequired() {
     assertEquals(404, assertThrows(ResponseStatusException.class, () -> controller.detail(8, 1, KEY)).getStatusCode().value());

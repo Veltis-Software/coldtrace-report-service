@@ -41,7 +41,7 @@ public class ReportEvidenceStore implements ReportEvidenceReader {
       else if (!List.of("RESOLVED", "CLOSED").contains(status.asText().toUpperCase(java.util.Locale.ROOT))) open++;
     }
     int count = readings.size();
-    return new ReportEvidenceSnapshot(row.getLong("id"), row.getLong("organization_id"), null, "traceability", row.getString("title"),
+    return new ReportEvidenceSnapshot(row.getLong("id"), row.getLong("organization_id"), "RPT-" + row.getLong("id"), row.getString("report_type"), row.getString("title"),
         time(row, "period_start"), time(row, "period_end"), time(row, "completed_at"),
         result.path("assets").isArray() ? result.get("assets").size() : null,
         readings.isArray() ? count : null, knownRanges ? breached : null,
