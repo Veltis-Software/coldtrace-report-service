@@ -23,7 +23,15 @@ public class ReportJobs {
     this.json = json;
   }
 
-  public record Request(String title, Instant periodStart, Instant periodEnd) {}
+  public record Request(String title, Instant periodStart, Instant periodEnd, String type) {
+    public Request(String title, Instant periodStart, Instant periodEnd) {
+      this(title, periodStart, periodEnd, null);
+    }
+
+    String reportType() {
+      return type == null ? "TRACEABILITY" : type;
+    }
+  }
 
   public record Job(long id, String status, String resultUrl) {}
 
@@ -31,6 +39,7 @@ public class ReportJobs {
     if (request.title() == null
         || request.title().isBlank()
         || request.title().length() > 200
+        || !Set.of("TRACEABILITY", "DAILY_LOG", "MONTHLY_SUMMARY", "COMPLIANCE").contains(request.reportType())
         || request.periodStart() == null
         || request.periodEnd() == null
         || !request.periodStart().isBefore(request.periodEnd())
@@ -70,8 +79,8 @@ public class ReportJobs {
           var statement =
               connection.prepareStatement(
                   "INSERT INTO"
-                      + " reports(organization_id,requested_by,title,period_start,period_end,status,incident_snapshot,created_at)"
-                      + " VALUES (?,?,?,?,?,'PENDING',?,?)",
+                      + " reports(organization_id,requested_by,title,period_start,period_end,status,incident_snapshot,created_at,report_type)"
+                      + " VALUES (?,?,?,?,?,'PENDING',?,?,?)",
                   Statement.RETURN_GENERATED_KEYS);
           Object[] values = {
             session.organizationId(),
@@ -80,7 +89,8 @@ public class ReportJobs {
             Timestamp.from(request.periodStart()),
             Timestamp.from(request.periodEnd()),
             serialize(incidents),
-            Timestamp.from(Instant.now())
+            Timestamp.from(Instant.now()),
+            request.reportType()
           };
           for (int i = 0; i < values.length; i++) statement.setObject(i + 1, values[i]);
           return statement;
