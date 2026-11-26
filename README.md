@@ -12,8 +12,10 @@ All report endpoints require a valid IAM bearer session with `reports:view`. Que
 
 ## Development
 
-Build the common library in `coldtrace-infrastructure/libraries/coldtrace-shared` with `mvn install`, then run `mvn verify` here. Use the infrastructure repository's Compose configuration to run MySQL, the Pub/Sub emulator and the extracted services together. The emulator push endpoint is disabled by default and enabled only in that local configuration.
+Install the shared library from the sibling `coldtrace-shared` repository with `mvn -B -f ../coldtrace-shared/pom.xml install`, then run `mvn verify` here. The build runs the unit tests and the Cucumber acceptance suite in `src/test/resources/features`. Use the infrastructure repository's Compose configuration to run MySQL, the Pub/Sub emulator and the other services together. The emulator push endpoint is disabled by default and enabled only in that local configuration.
 
 Database migrations live in `src/main/resources/db/migration`. Duplicate events and reading IDs do not inflate aggregates. Tests cover duplicate delivery, transaction rollback, report consolidation and organization isolation.
 
-Cloud deployment and external acceptance evidence remain separate from local verification. No deployed Google Cloud environment is claimed.
+## Deployment
+
+The service runs in Google Cloud Run as `coldtrace-report`, with its `ct_report` schema in Cloud SQL and an authenticated Pub/Sub push subscription. See `CLOUD_DEPLOYMENT.md` in `coldtrace-infrastructure`.
